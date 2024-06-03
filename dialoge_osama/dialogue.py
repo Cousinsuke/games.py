@@ -53,6 +53,7 @@ messages = [
 snip = font.render('', True, 'white')
 counter = 0
 speed = 3
+transition_delay = 300  # 60 frames = 1 second
 active_message = 0
 message = messages[active_message]
 done = False
@@ -63,25 +64,28 @@ background = pg.transform.scale(pg.image.load(path.join(img_dir, 'osama.png')).c
 run = True
 while run:
     screen.fill((255, 255, 255))  # Fill the screen with white color
-    screen.blit(background, (0, 0)) 
+    screen.blit(background, (0, 0))
     timer.tick(60)
     pg.draw.rect(screen, 'black', [0, 370, 800, 200])  # makes box for text
 
     if counter < speed * len(message):
         counter += 1
     elif counter >= speed * len(message):
-        done = True
-        if active_message < len(messages) - 1:
-            active_message += 1
-            message = messages[active_message]
-            counter = 0
-            done = False
+        if done:
+            pg.time.wait(transition_delay)  # Adding delay before transitioning to next text
+            if active_message < len(messages) - 1:
+                active_message += 1
+                message = messages[active_message]
+                counter = 0
+                done = False
+        else:
+            done = True
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
 
-    snip = font.render(message[0:counter//speed], True, 'white')
+    snip = font.render(message[0:counter // speed], True, 'white')
     screen.blit(snip, (0, 375))
     pg.display.flip()
 pg.quit()
